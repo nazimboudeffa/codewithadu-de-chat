@@ -99,47 +99,129 @@
     margin-top: 8px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
   }
 
   .msg.bot .source-card {
     background: #16162a;
     border: 1px solid #2a2a3e;
-    border-radius: 8px;
-    padding: 10px 14px;
+    border-radius: 10px;
+    padding: 14px 16px;
     font-size: 13px;
+    transition: border-color 0.2s;
+  }
+
+  .msg.bot .source-card:hover {
+    border-color: #6c5ce7;
+  }
+
+  .msg.bot .source-card .src-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .msg.bot .source-card .src-rank {
+    font-size: 11px;
+    font-weight: 700;
+    color: #6c5ce7;
+    background: #6c5ce720;
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+
+  .msg.bot .source-card .src-score-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .msg.bot .source-card .src-score-bar {
+    width: 50px;
+    height: 5px;
+    background: #2a2a3e;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .msg.bot .source-card .src-score-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #6c5ce7, #a29bfe);
+    transition: width 0.4s ease;
+  }
+
+  .msg.bot .source-card .src-score-num {
+    color: #a29bfe;
+    font-size: 11px;
+    font-weight: 600;
   }
 
   .msg.bot .source-card .src-title {
     font-weight: 600;
-    color: #a29bfe;
-    margin-bottom: 4px;
+    color: #e0e0e0;
+    margin-bottom: 6px;
+    font-size: 14px;
+    line-height: 1.3;
   }
 
   .msg.bot .source-card .src-meta {
     color: #666;
     font-size: 11px;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
 
   .msg.bot .source-card .src-text {
     color: #aaa;
-    line-height: 1.4;
+    line-height: 1.5;
+    padding: 8px 10px;
+    background: #12122a;
+    border-radius: 6px;
+    border-left: 3px solid #6c5ce7;
+    margin-bottom: 8px;
   }
 
-  .msg.bot .source-card .src-score {
-    color: #555;
-    font-size: 11px;
-    margin-top: 4px;
+  .msg.bot .source-card .src-footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
   }
 
-  .msg.bot .source-card a {
+  .msg.bot .source-card .src-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     color: #6c5ce7;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 3px 10px;
+    background: #6c5ce715;
+    border-radius: 6px;
+    transition: background 0.2s;
+  }
+
+  .msg.bot .source-card .src-link:hover {
+    background: #6c5ce730;
     text-decoration: none;
   }
 
-  .msg.bot .source-card a:hover {
-    text-decoration: underline;
+  .msg.bot .source-card .src-media {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: #a29bfe;
+    font-size: 12px;
+    padding: 3px 10px;
+    background: #a29bfe15;
+    border-radius: 6px;
+  }
+
+  .msg.bot .source-card .src-media::before {
+    content: "\1F5BC";
+    font-size: 12px;
   }
 
   .msg.error .bubble {
@@ -277,8 +359,7 @@
 <body>
 
 <header>
-  <div class="logo">R</div>
-  <h1>RAG Chat</h1>
+  <h1>Chattez avec mon RAG Facebook</h1>
   <div id="top-k-control">
     <label for="top-k">Contextes :</label>
     <select id="top-k">
@@ -294,7 +375,7 @@
 <div id="chat">
   <div id="welcome">
     <h2>Recherche dans mes publications</h2>
-    <p>Pose une question. Le moteur recherche les passages les plus pertinents<br>parmi tes posts via TF-IDF et affiche les sources.</p>
+    <p>Pose une question. Le moteur recherche les passages les plus pertinents<br>parmi mes posts et affiche les sources.</p>
   </div>
 </div>
 
@@ -349,10 +430,27 @@ function buildSources(sources) {
   sources.forEach((s, i) => {
     const card = document.createElement("div");
     card.className = "source-card";
-    let inner = `<div class="src-title">${i + 1}. ${escapeHtml(s.title)}</div>`;
-    inner += `<div class="src-meta">${escapeHtml(s.date)} &mdash; score: ${s.score}</div>`;
-    inner += `<div class="src-text">${escapeHtml(s.text).substring(0, 300)}${s.text.length > 300 ? "..." : ""}</div>`;
-    if (s.url) inner += `<div class="src-score"><a href="${escapeHtml(s.url)}" target="_blank">Lien</a></div>`;
+    const pct = Math.min(Math.round(s.score * 100), 100);
+    let inner = `
+      <div class="src-header">
+        <span class="src-rank">#${i + 1}</span>
+        <div class="src-score-badge">
+          <div class="src-score-bar"><div class="src-score-fill" style="width:${pct}%"></div></div>
+          <span class="src-score-num">${s.score.toFixed(2)}</span>
+        </div>
+      </div>
+      <div class="src-title">${escapeHtml(s.title)}</div>
+      <div class="src-meta">${escapeHtml(s.date)}</div>
+      <div class="src-text">${escapeHtml(s.text).substring(0, 350)}${s.text.length > 350 ? "..." : ""}</div>
+      <div class="src-footer">`;
+    if (s.url) {
+      inner += `<a class="src-link" href="${escapeHtml(s.url)}" target="_blank">Lien</a>`;
+    }
+    if (s.media) {
+      const mediaName = escapeHtml(s.media).split("/").pop().split("?")[0];
+      inner += `<span class="src-media">${mediaName}</span>`;
+    }
+    inner += `</div>`;
     card.innerHTML = inner;
     wrap.appendChild(card);
   });
@@ -381,9 +479,10 @@ async function send() {
     if (data.error) {
       addMsg("error", escapeHtml(data.error));
     } else {
-      const answerText = data.answer || "Aucun résultat.";
       const src = buildSources(data.sources);
-      addMsg("bot", escapeHtml(answerText), src);
+      const count = data.sources ? data.sources.length : 0;
+      const summary = count > 0 ? `${count} résultat${count > 1 ? "s" : ""} trouvé${count > 1 ? "s" : ""}.` : "Aucun résultat.";
+      addMsg("bot", summary, src);
     }
   } catch (e) {
     typing.classList.remove("active");

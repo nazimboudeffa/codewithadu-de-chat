@@ -26,6 +26,8 @@ Interface web pour interroger un RAG (Retrieval-Augmented Generation) alimenté 
 ```bash
 git clone https://github.com/ton-user/codewithadu-de-chat.git
 cd codewithadu-de-chat
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
 

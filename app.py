@@ -43,6 +43,7 @@ def ask():
             "date": item.get("iso_date") or "inconnue",
             "text": item.get("text", ""),
             "url": item.get("url"),
+            "media": item.get("media_uri"),
             "score": round(item.get("score", 0), 4),
         })
 
